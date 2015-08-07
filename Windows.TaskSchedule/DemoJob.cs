@@ -7,6 +7,7 @@ namespace Windows.TaskSchedule
 {
     public class DemoJob:IJob
     {
+        static log4net.ILog logger = log4net.LogManager.GetLogger(typeof(DemoJob));
         DateTime date = new DateTime();
         public void Init()
         {
@@ -15,12 +16,12 @@ namespace Windows.TaskSchedule
 
         public void Excute()
         {
-            Console.WriteLine(date);           
+            logger.Debug(date);           
         }
 
         public void OnError(Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            logger.Debug(ex.ToString());
         }       
     }
 }
