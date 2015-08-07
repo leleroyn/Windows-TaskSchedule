@@ -60,10 +60,10 @@
     <Compile Include="Utility\JobObject.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Jobs.config">
+    <None Include="Configs\Jobs.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="log4net.config">
+    <None Include="Configs\log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

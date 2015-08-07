@@ -13,7 +13,7 @@ namespace Windows.TaskSchedule.Utility
     public class ScheduleFactory
     {
         static ILog logger = LogManager.GetLogger("SystemLogger");
-        static readonly string configPath = Path.Combine(@"E:\tools\开源示例\Windows.TaskSchedule\Windows.TaskSchedule", "Jobs.config");
+        static readonly string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "Jobs.config");
         static XDocument doc = XDocument.Load(configPath);
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
