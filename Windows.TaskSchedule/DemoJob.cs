@@ -17,5 +17,10 @@ namespace Windows.TaskSchedule
         {
             Console.WriteLine(date);           
         }
+
+        public void OnError(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }       
     }
 }

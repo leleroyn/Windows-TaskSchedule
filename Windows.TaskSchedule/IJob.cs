@@ -9,5 +9,6 @@ namespace Windows.TaskSchedule
     {
         void Init();
         void Excute();
+        void OnError(Exception ex);        
     }
 }

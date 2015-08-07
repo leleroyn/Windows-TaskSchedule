@@ -43,16 +43,19 @@ namespace Windows.TaskSchedule
             try
             {
                 if (CornUtility.Trigger(job.CornExpress, DateTime.Parse(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))))
-                {                  
+                {
                     if (!job.Running && !job.Triggering)
                     {
                         job.Triggering = true;
                         Task.Factory.StartNew(() =>
                         {
-                            job.Running = true;
-                            job.Instance.Init();
-                            job.Instance.Excute();
-                            job.Running = false;
+                            try
+                            {
+                                job.Running = true;
+                                job.Instance.Init();
+                                job.Instance.Excute();                                
+                            }
+                            finally { job.Running = false; }
                         });
                     }
                 }
@@ -63,6 +66,11 @@ namespace Windows.TaskSchedule
             }
             catch (Exception ex)
             {
+                try
+                {
+                    job.Instance.OnError(ex);
+                }
+                catch { }
                 logger.Error(string.Format("执行任务:{0}时出错.", job.Name), ex);
             }
         }
