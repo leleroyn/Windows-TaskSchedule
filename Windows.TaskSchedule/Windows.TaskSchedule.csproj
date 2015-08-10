@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cron.NET">
-      <HintPath>..\library\Cron.NET.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\library\log4net.dll</HintPath>
     </Reference>
@@ -51,6 +48,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Corn.Net\CronExpression.cs" />
+    <Compile Include="Corn.Net\ISet.cs" />
+    <Compile Include="Corn.Net\ISortedSet.cs" />
+    <Compile Include="Corn.Net\TreeSet.cs" />
     <Compile Include="DemoJob.cs" />
     <Compile Include="IJob.cs" />
     <Compile Include="Program.cs" />
