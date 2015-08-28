@@ -12,15 +12,15 @@ namespace Windows.TaskSchedule.Utility
 {
     public class ScheduleFactory
     {
-        static ILog logger = LogManager.GetLogger("SystemLogger");
+        static ILog logger = LogManager.GetLogger("Topshelf.Error");
         static readonly string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "Jobs.config");
         static XDocument doc = XDocument.Load(configPath);
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
+        
         public void Start()
-        {
-            logger.DebugFormat("{0} start。", ServerName);
+        {          
             List<JobObject> jobs = new List<JobObject>();
             try
             {
@@ -46,10 +46,7 @@ namespace Windows.TaskSchedule.Utility
 
         }
 
-        public void Stop()
-        {
-            logger.DebugFormat("{0} stop。", ServerName);
-        }
+        public void Stop() { }
 
         #region Private Method
         /// <summary>
