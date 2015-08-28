@@ -18,7 +18,7 @@ namespace Windows.TaskSchedule.Utility
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
-        public  void Start()
+        public void Start()
         {
             logger.DebugFormat("{0} start。", ServerName);
             List<JobObject> jobs = new List<JobObject>();
@@ -43,13 +43,13 @@ namespace Windows.TaskSchedule.Utility
                     System.Threading.Thread.Sleep(1);
                 }
             });
-           
+
         }
 
         public void Stop()
         {
             logger.DebugFormat("{0} stop。", ServerName);
-        }      
+        }
 
         #region Private Method
         /// <summary>
@@ -62,11 +62,29 @@ namespace Windows.TaskSchedule.Utility
             var jobs = doc.Element("Jobs").Elements("Job");
             foreach (var p in jobs)
             {
-                string assembly = p.Attribute("type").Value.Split(',')[1];
-                string className = p.Attribute("type").Value.Split(',')[0];
                 JobObject job = new JobObject();
+                if (p.Attributes().Any(o => o.Name.ToString() == "type") && p.Attributes().Any(o => o.Name.ToString() == "exePath"))
+                {
+                    throw new Exception("job中不能同时配制“type”与“exePath”");
+                }
+                if (p.Attributes().Any(o => o.Name.ToString() == "type"))
+                {
+                    job.JobType = JobTypeEnum.Assembly;
+                    string assembly = p.Attribute("type").Value.Split(',')[1];
+                    string className = p.Attribute("type").Value.Split(',')[0];
+                    job.Instance = Assembly.Load(assembly).CreateInstance(className) as IJob;
+                }
+                else if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
+                {
+                    job.JobType = JobTypeEnum.Exe;
+                    job.ExePath = p.Attribute("exePath").Value;
+                    if (p.Attributes().Any(o => o.Name.ToString() == "arguments"))
+                    {
+                        job.Arguments = p.Attribute("arguments").Value;
+                    }
+                }
+
                 job.Name = p.Attribute("name").Value;
-                job.Instance = Assembly.Load(assembly).CreateInstance(className) as IJob;
                 job.CornExpress = p.Attribute("cornExpress").Value;
                 result.Add(job);
             }
@@ -91,8 +109,28 @@ namespace Windows.TaskSchedule.Utility
                             try
                             {
                                 job.Running = true;
-                                job.Instance.Init();
-                                job.Instance.Excute();
+                                switch (job.JobType)
+                                {
+                                    case JobTypeEnum.Assembly:
+                                        job.Instance.Init();
+                                        job.Instance.Excute();
+                                        break;
+                                    case JobTypeEnum.Exe:
+                                        var process = new System.Diagnostics.Process();
+                                        if (string.IsNullOrWhiteSpace(job.Arguments))
+                                        {
+                                            process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
+                                        }
+                                        else
+                                        {
+                                            process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath, job.Arguments);
+                                        }
+                                        process.Start();
+                                        process.WaitForExit();
+                                        break;
+                                }
+
+
                             }
                             finally { job.Running = false; }
                         });
@@ -114,6 +152,6 @@ namespace Windows.TaskSchedule.Utility
             }
         }
         #endregion
-       
+
     }
 }
