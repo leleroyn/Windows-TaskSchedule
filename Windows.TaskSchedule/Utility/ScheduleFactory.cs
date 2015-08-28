@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using log4net;
+using Quartz;
 
 namespace Windows.TaskSchedule.Utility
 {
@@ -83,6 +84,10 @@ namespace Windows.TaskSchedule.Utility
 
                 job.Name = p.Attribute("name").Value;
                 job.CornExpress = p.Attribute("cornExpress").Value;
+                if (!CronExpression.IsValidExpression(job.CornExpress))
+                {
+                    throw new Exception(string.Format("corn表达式：{0}不正确。", job.CornExpress));
+                }
                 result.Add(job);
             }
             return result;
@@ -136,14 +141,16 @@ namespace Windows.TaskSchedule.Utility
                     job.Triggering = false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) //不处理错误，防止日志爆长
             {
                 try
                 {
-                    job.Instance.OnError(ex);
+                    if (job.JobType == JobTypeEnum.Assembly)
+                    {
+                        job.Instance.OnError(ex);
+                    }
                 }
-                catch { }
-                logger.Error(string.Format("执行任务:{0}时出错.", job.Name), ex);
+                catch { }              
             }
         }
         #endregion
