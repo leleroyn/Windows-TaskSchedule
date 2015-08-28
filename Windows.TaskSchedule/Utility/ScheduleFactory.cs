@@ -129,8 +129,6 @@ namespace Windows.TaskSchedule.Utility
                                         process.WaitForExit();
                                         break;
                                 }
-
-
                             }
                             finally { job.Running = false; }
                         });
