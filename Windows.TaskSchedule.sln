@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windows.TaskSchedule", "Windows.TaskSchedule\Windows.TaskSchedule.csproj", "{0F3BC01C-D251-450D-AB2A-B4AB2F2A4EE3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windows.TaskSchedule.JobFactory", "Windows.TaskSchedule.JobFactory\Windows.TaskSchedule.JobFactory.csproj", "{2116CC2F-B67E-42BD-865C-874826160BD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0F3BC01C-D251-450D-AB2A-B4AB2F2A4EE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F3BC01C-D251-450D-AB2A-B4AB2F2A4EE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F3BC01C-D251-450D-AB2A-B4AB2F2A4EE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2116CC2F-B67E-42BD-865C-874826160BD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2116CC2F-B67E-42BD-865C-874826160BD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2116CC2F-B67E-42BD-865C-874826160BD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2116CC2F-B67E-42BD-865C-874826160BD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

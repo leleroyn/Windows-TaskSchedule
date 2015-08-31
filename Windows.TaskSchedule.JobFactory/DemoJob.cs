@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Windows.TaskSchedule
+namespace Windows.TaskSchedule.JobFactory
 {
     public class DemoJob:IJob
-    {
-        static log4net.ILog logger = log4net.LogManager.GetLogger(typeof(DemoJob));
+    {      
         DateTime date = new DateTime();
         public void Init()
         {
@@ -16,12 +15,12 @@ namespace Windows.TaskSchedule
 
         public void Excute()
         {
-            logger.Debug(date);           
+            Console.WriteLine(date);           
         }
 
         public void OnError(Exception ex)
         {
-            logger.Debug(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }       
     }
 }

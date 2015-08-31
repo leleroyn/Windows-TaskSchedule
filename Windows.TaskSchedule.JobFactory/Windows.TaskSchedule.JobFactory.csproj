@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0F3BC01C-D251-450D-AB2A-B4AB2F2A4EE3}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{2116CC2F-B67E-42BD-865C-874826160BD6}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Windows.TaskSchedule</RootNamespace>
-    <AssemblyName>Windows.TaskSchedule</AssemblyName>
+    <RootNamespace>Windows.TaskSchedule.JobFactory</RootNamespace>
+    <AssemblyName>Windows.TaskSchedule.JobFactory</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,45 +30,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\library\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Topshelf, Version=3.2.150.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\library\Topshelf.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Corn.Net\CronExpression.cs" />
-    <Compile Include="Corn.Net\ISet.cs" />
-    <Compile Include="Corn.Net\ISortedSet.cs" />
-    <Compile Include="Corn.Net\TreeSet.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="DemoJob.cs" />
+    <Compile Include="IJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\CornUtility.cs" />
-    <Compile Include="Utility\ScheduleFactory.cs" />
-    <Compile Include="Utility\JobObject.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Configs\Jobs.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Configs\log4net.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Windows.TaskSchedule.JobFactory\Windows.TaskSchedule.JobFactory.csproj">
-      <Project>{2116cc2f-b67e-42bd-865c-874826160bd6}</Project>
-      <Name>Windows.TaskSchedule.JobFactory</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
