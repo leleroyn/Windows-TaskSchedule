@@ -5,23 +5,22 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using log4net;
 using Quartz;
-using Windows.TaskSchedule.JobFactory;
+using Windows.TaskSchedule.Extends;
 
 namespace Windows.TaskSchedule.Utility
 {
-    public class ScheduleFactory
-    {
-        static ILog logger = LogManager.GetLogger("Topshelf.Error");
+    public class ScheduleFactory: DefaultLogger
+    {   
         static readonly string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "Jobs.config");
         static XDocument doc = XDocument.Load(configPath);
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
-        public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
+        public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;       
         
         public void Start()
-        {          
+        {
+            Logger.Debug("服务开始启动...");
             List<JobObject> jobs = new List<JobObject>();
             try
             {
@@ -29,7 +28,7 @@ namespace Windows.TaskSchedule.Utility
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                Logger.Error(ex);
                 throw;
             }
 
@@ -45,9 +44,13 @@ namespace Windows.TaskSchedule.Utility
                 }
             });
 
+            Logger.Debug("服务启动成功.");
         }
 
-        public void Stop() { }
+        public void Stop() {
+
+            Logger.Debug("服务停止.");
+        }
 
         #region Private Method
         /// <summary>

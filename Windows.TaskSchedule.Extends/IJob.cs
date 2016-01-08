@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Windows.TaskSchedule.JobFactory
+namespace Windows.TaskSchedule.Extends
 {
     public interface IJob
     {

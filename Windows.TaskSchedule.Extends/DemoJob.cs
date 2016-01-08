@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Windows.TaskSchedule.JobFactory
+namespace Windows.TaskSchedule.Extends
 {
-    public class DemoJob:IJob
+    public class DemoJob:DefaultLogger, IJob
     {      
         DateTime date = new DateTime();
         public void Init()
@@ -15,12 +15,12 @@ namespace Windows.TaskSchedule.JobFactory
 
         public void Excute()
         {
-            Console.WriteLine(date);           
+           Logger.Debug(date);          
         }
 
         public void OnError(Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Logger.Debug(ex.ToString());
         }       
     }
 }

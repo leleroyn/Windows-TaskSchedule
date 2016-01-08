@@ -1,4 +1,4 @@
-﻿using Windows.TaskSchedule.JobFactory;
+﻿using Windows.TaskSchedule.Extends;
 
 namespace Windows.TaskSchedule.Utility
 {
