@@ -78,7 +78,7 @@ namespace Windows.TaskSchedule.Utility
                 else if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
                 {
                     job.JobType = JobTypeEnum.Exe;
-                    job.ExePath = p.Attribute("exePath").Value;
+                    job.ExePath = p.Attribute("exePath").Value.Replace("${basedir}", AppDomain.CurrentDomain.BaseDirectory);
                     if (p.Attributes().Any(o => o.Name.ToString() == "arguments"))
                     {
                         job.Arguments = p.Attribute("arguments").Value;
