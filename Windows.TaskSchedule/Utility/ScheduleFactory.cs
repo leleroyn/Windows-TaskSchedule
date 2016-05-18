@@ -16,12 +16,12 @@ namespace Windows.TaskSchedule.Utility
         static XDocument doc = XDocument.Load(configPath);
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
-        public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;       
-        
+        public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
+        static List<JobObject> jobs = new List<JobObject>();
         public void Start()
         {
             Logger.Debug("服务开始启动...");
-            List<JobObject> jobs = new List<JobObject>();
+                       
             try
             {
                 jobs = GetJobs();
@@ -38,12 +38,16 @@ namespace Windows.TaskSchedule.Utility
                 {
                     foreach (var job in jobs)
                     {
-                        RunJob(job);
+                        if (!job.Running)
+                        {
+                            RunJob(job);
+                        }
                     }
                     System.Threading.Thread.Sleep(1);
                 }
-            });
-
+            }); 
+            Logger.Debug(string.Format("共找到【{0}】个任务.",jobs.Count));
+            Logger.Debug(string.Format("当前服务运行目录:【{0}】.", AppDomain.CurrentDomain.BaseDirectory));
             Logger.Debug("服务启动成功.");
         }
 
@@ -121,17 +125,19 @@ namespace Windows.TaskSchedule.Utility
                                         job.Instance.Excute();
                                         break;
                                     case JobTypeEnum.Exe:
-                                        var process = new System.Diagnostics.Process();
-                                        if (string.IsNullOrWhiteSpace(job.Arguments))
+                                        using (var process = new System.Diagnostics.Process())
                                         {
-                                            process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
+                                            if (string.IsNullOrWhiteSpace(job.Arguments))
+                                            {
+                                                process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
+                                            }
+                                            else
+                                            {
+                                                process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath, job.Arguments);
+                                            }
+                                            process.Start();
+                                            process.WaitForExit();
                                         }
-                                        else
-                                        {
-                                            process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath, job.Arguments);
-                                        }
-                                        process.Start();
-                                        process.WaitForExit();
                                         break;
                                 }
                             }
