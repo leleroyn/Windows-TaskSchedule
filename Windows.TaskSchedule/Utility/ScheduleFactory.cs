@@ -79,6 +79,10 @@ namespace Windows.TaskSchedule.Utility
                     string className = p.Attribute("type").Value.Split(',')[0];
                     job.Instance = Assembly.Load(assembly).CreateInstance(className) as IJob;
                 }
+                if (p.Attributes().Any(o => o.Name.ToString() == "ExpireSecond"))
+                {
+                    job.ExpireSecond = int.Parse(p.Attribute("ExpireSecond").Value);                    
+                }
                 else if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
                 {
                     job.JobType = JobTypeEnum.Exe;
@@ -127,6 +131,7 @@ namespace Windows.TaskSchedule.Utility
                                     case JobTypeEnum.Exe:
                                         using (var process = new System.Diagnostics.Process())
                                         {
+                                            bool hasValue = job.ExpireSecond.HasValue;                                            
                                             if (string.IsNullOrWhiteSpace(job.Arguments))
                                             {
                                                 process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
@@ -136,7 +141,19 @@ namespace Windows.TaskSchedule.Utility
                                                 process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath, job.Arguments);
                                             }
                                             process.Start();
-                                            process.WaitForExit();
+                                            if (hasValue) //如果设置了最长运行时间，到达时间时，自动中止进程
+                                            {
+                                                bool result = process.WaitForExit(job.ExpireSecond.Value * 1000);
+                                                if (!result)
+                                                {
+                                                    Logger.Info(string.Format("任务【{0}】因长时间：{1}秒未返回运行状态，程序已自动将其Kill.", job.Name, job.ExpireSecond));
+                                                    process.Kill();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                process.WaitForExit();
+                                            }
                                         }
                                         break;
                                 }

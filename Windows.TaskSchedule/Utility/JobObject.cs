@@ -27,6 +27,15 @@ namespace Windows.TaskSchedule.Utility
         /// 可执行程序运行时可用的参数
         /// </summary>
         public string Arguments { get; set; }
+
+        /// <summary>
+        /// 最长运行时间
+        /// </summary>
+        public int? ExpireSecond
+        {
+            get;
+            set;
+        }
     }
 
     /// <summary>
