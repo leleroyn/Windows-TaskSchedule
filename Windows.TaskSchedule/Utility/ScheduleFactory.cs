@@ -43,11 +43,12 @@ namespace Windows.TaskSchedule.Utility
                     {
                         if (!RuningJobSet.Contains(job.Name))
                         {
-                            lock (lockObj)
+                            Task.Factory.StartNew(() =>
                             {
-                                RuningJobSet.Add(job.Name);
-                            }
-                            RunJob(job);
+                                lock(lockObj) { RuningJobSet.Add(job.Name); }
+                                RunJob(job);
+                                RemoveRunJob(job.Name);
+                            });
                         }
                     }
                     System.Threading.Thread.Sleep(1);
@@ -125,63 +126,46 @@ namespace Windows.TaskSchedule.Utility
                     if (!job.Triggering)
                     {
                         job.Triggering = true;
-                        Task.Factory.StartNew(() =>
+                        switch (job.JobType)
                         {
-                            try
-                            {                               
-                                switch (job.JobType)
+                            case JobTypeEnum.Assembly:
+                                job.Instance.Init();
+                                job.Instance.Excute();
+                                break;
+                            case JobTypeEnum.Exe:
+                                using (var process = new System.Diagnostics.Process())
                                 {
-                                    case JobTypeEnum.Assembly:
-                                        job.Instance.Init();
-                                        job.Instance.Excute();
-                                        break;
-                                    case JobTypeEnum.Exe:
-                                        using (var process = new System.Diagnostics.Process())
+                                    bool hasValue = job.ExpireSecond.HasValue;
+                                    if (string.IsNullOrWhiteSpace(job.Arguments))
+                                    {
+                                        process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
+                                    }
+                                    else
+                                    {
+                                        process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath, job.Arguments);
+                                    }
+                                    process.Start();
+                                    if (hasValue) //如果设置了最长运行时间，到达时间时，自动中止进程
+                                    {
+                                        bool result = process.WaitForExit(job.ExpireSecond.Value * 1000);
+                                        if (!result)
                                         {
-                                            bool hasValue = job.ExpireSecond.HasValue;
-                                            if (string.IsNullOrWhiteSpace(job.Arguments))
-                                            {
-                                                process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
-                                            }
-                                            else
-                                            {
-                                                process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath, job.Arguments);
-                                            }
-                                            process.Start();
-                                            if (hasValue) //如果设置了最长运行时间，到达时间时，自动中止进程
-                                            {
-                                                bool result = process.WaitForExit(job.ExpireSecond.Value * 1000);
-                                                if (!result)
-                                                {
-                                                    Logger.Info(string.Format("任务【{0}】因长时间：{1}秒未返回运行状态，程序已自动将其Kill.", job.Name, job.ExpireSecond));
-                                                    process.Kill();
-                                                }
-                                            }
-                                            else
-                                            {
-                                                process.WaitForExit();
-                                            }
+                                            Logger.Info(string.Format("任务【{0}】因长时间：{1}秒未返回运行状态，程序已自动将其Kill.", job.Name, job.ExpireSecond));
+                                            process.Kill();
                                         }
-                                        break;
+                                    }
+                                    else
+                                    {
+                                        process.WaitForExit();
+                                    }
                                 }
-                            }
-                            finally
-                            {                               
-                                lock (lockObj)
-                                {
-                                    RuningJobSet.Remove(job.Name);
-                                }
-                            }
-                        });
+                                break;
+                        }
                     }
                 }
                 else
                 {
                     job.Triggering = false;
-                    lock (lockObj)
-                    {
-                        RuningJobSet.Remove(job.Name);
-                    }
                 }
             }
             catch (Exception ex) //不处理错误，防止日志爆长
@@ -194,6 +178,14 @@ namespace Windows.TaskSchedule.Utility
                     }
                 }
                 catch { }
+            }
+        }
+
+        private void RemoveRunJob(string jobName)
+        {
+            lock (lockObj)
+            {
+                RuningJobSet.Remove(jobName);
             }
         }
         #endregion
