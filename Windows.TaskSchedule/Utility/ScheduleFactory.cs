@@ -10,18 +10,21 @@ using Windows.TaskSchedule.Extends;
 
 namespace Windows.TaskSchedule.Utility
 {
-    public class ScheduleFactory: DefaultLogger
-    {   
+    public class ScheduleFactory : DefaultLogger
+    {
         static readonly string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "Jobs.config");
         static XDocument doc = XDocument.Load(configPath);
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
         static List<JobObject> jobs = new List<JobObject>();
+
+        static HashSet<string> RuningJobSet = new HashSet<string>();
+        static readonly object lockObj = new object();
         public void Start()
         {
             Logger.Debug("服务开始启动...");
-                       
+
             try
             {
                 jobs = GetJobs();
@@ -38,20 +41,25 @@ namespace Windows.TaskSchedule.Utility
                 {
                     foreach (var job in jobs)
                     {
-                        if (!job.Running)
+                        if (!job.Running && !RuningJobSet.Contains(job.Name))
                         {
+                            lock (lockObj)
+                            {
+                                RuningJobSet.Add(job.Name);
+                            }
                             RunJob(job);
                         }
                     }
                     System.Threading.Thread.Sleep(1);
                 }
-            }); 
-            Logger.Debug(string.Format("共找到【{0}】个任务.",jobs.Count));
+            });
+            Logger.Debug(string.Format("共找到【{0}】个任务.", jobs.Count));
             Logger.Debug(string.Format("当前服务运行目录:【{0}】.", AppDomain.CurrentDomain.BaseDirectory));
             Logger.Debug("服务启动成功.");
         }
 
-        public void Stop() {
+        public void Stop()
+        {
 
             Logger.Debug("服务停止.");
         }
@@ -81,7 +89,7 @@ namespace Windows.TaskSchedule.Utility
                 }
                 if (p.Attributes().Any(o => o.Name.ToString() == "ExpireSecond"))
                 {
-                    job.ExpireSecond = int.Parse(p.Attribute("ExpireSecond").Value);                    
+                    job.ExpireSecond = int.Parse(p.Attribute("ExpireSecond").Value);
                 }
                 else if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
                 {
@@ -131,7 +139,7 @@ namespace Windows.TaskSchedule.Utility
                                     case JobTypeEnum.Exe:
                                         using (var process = new System.Diagnostics.Process())
                                         {
-                                            bool hasValue = job.ExpireSecond.HasValue;                                            
+                                            bool hasValue = job.ExpireSecond.HasValue;
                                             if (string.IsNullOrWhiteSpace(job.Arguments))
                                             {
                                                 process.StartInfo = new System.Diagnostics.ProcessStartInfo(job.ExePath);
@@ -158,7 +166,11 @@ namespace Windows.TaskSchedule.Utility
                                         break;
                                 }
                             }
-                            finally { job.Running = false; }
+                            finally
+                            {
+                                job.Running = false; lock (lockObj)
+                                RuningJobSet.Add(job.Name);
+                            }
                         });
                     }
                 }
@@ -176,7 +188,7 @@ namespace Windows.TaskSchedule.Utility
                         job.Instance.OnError(ex);
                     }
                 }
-                catch { }              
+                catch { }
             }
         }
         #endregion
