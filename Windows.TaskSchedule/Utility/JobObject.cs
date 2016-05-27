@@ -6,11 +6,7 @@ namespace Windows.TaskSchedule.Utility
     {
         public string Name { get; set; }
         public string CornExpress { get; set; }
-        public IJob Instance { get; set; }
-        /// <summary>
-        /// 任务正在执行
-        /// </summary>
-        public bool Running { get; set; }
+        public IJob Instance { get; set; }        
         /// <summary>
         /// 任务正在执行时间段中
         /// </summary>

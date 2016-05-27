@@ -41,7 +41,7 @@ namespace Windows.TaskSchedule.Utility
                 {
                     foreach (var job in jobs)
                     {
-                        if (!job.Running && !RuningJobSet.Contains(job.Name))
+                        if (!RuningJobSet.Contains(job.Name))
                         {
                             lock (lockObj)
                             {
@@ -122,14 +122,13 @@ namespace Windows.TaskSchedule.Utility
             {
                 if (CornUtility.Trigger(job.CornExpress, DateTime.Parse(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))))
                 {
-                    if (!job.Running && !job.Triggering)
+                    if (!job.Triggering)
                     {
                         job.Triggering = true;
                         Task.Factory.StartNew(() =>
                         {
                             try
-                            {
-                                job.Running = true;
+                            {                               
                                 switch (job.JobType)
                                 {
                                     case JobTypeEnum.Assembly:
@@ -167,9 +166,11 @@ namespace Windows.TaskSchedule.Utility
                                 }
                             }
                             finally
-                            {
-                                job.Running = false; lock (lockObj)
-                                RuningJobSet.Add(job.Name);
+                            {                               
+                                lock (lockObj)
+                                {
+                                    RuningJobSet.Remove(job.Name);
+                                }
                             }
                         });
                     }
@@ -177,6 +178,10 @@ namespace Windows.TaskSchedule.Utility
                 else
                 {
                     job.Triggering = false;
+                    lock (lockObj)
+                    {
+                        RuningJobSet.Remove(job.Name);
+                    }
                 }
             }
             catch (Exception ex) //不处理错误，防止日志爆长
