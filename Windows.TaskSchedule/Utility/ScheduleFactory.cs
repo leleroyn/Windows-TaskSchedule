@@ -19,6 +19,9 @@ namespace Windows.TaskSchedule.Utility
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
         static List<JobObject> jobs = new List<JobObject>();
+
+        static ConcurrentBag<string> RuningJobSet = new ConcurrentBag<string>();
+        static readonly object lockObj = new object();
         public void Start()
         {
             Logger.Debug("服务开始启动...");
@@ -39,13 +42,15 @@ namespace Windows.TaskSchedule.Utility
                 {
                     foreach (var job in jobs)
                     {
-                        Task.Factory.StartNew(() =>
+                        if (!RuningJobSet.Contains(job.Name))
                         {
-                            lock (job)
-                            {
+                            AddRunJob(job.Name);
+                            Task.Factory.StartNew(() =>
+                            {                                
                                 RunJob(job);
-                            }
-                        });
+                                RemoveRunJob(job.Name);
+                            });
+                        }
                     }
                     System.Threading.Thread.Sleep(1);
                 }
@@ -177,6 +182,18 @@ namespace Windows.TaskSchedule.Utility
             }
         }
 
+        private void AddRunJob(string jobName)
+        {
+            RuningJobSet.Add(jobName);
+        }
+
+        private void RemoveRunJob(string jobName)
+        {
+            if (!RuningJobSet.TryTake(out jobName))
+            {
+                Logger.Info(string.Format("任务【{0}】移除运动队列时异常.", jobName));
+            }
+        }
         #endregion
 
     }
