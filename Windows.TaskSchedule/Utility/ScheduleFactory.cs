@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Quartz;
 using Windows.TaskSchedule.Extends;
+using System.Collections.Concurrent;
 
 namespace Windows.TaskSchedule.Utility
 {
@@ -18,9 +19,6 @@ namespace Windows.TaskSchedule.Utility
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
         static List<JobObject> jobs = new List<JobObject>();
-
-        static HashSet<string> RuningJobSet = new HashSet<string>();
-        static readonly object lockObj = new object();
         public void Start()
         {
             Logger.Debug("服务开始启动...");
@@ -41,15 +39,13 @@ namespace Windows.TaskSchedule.Utility
                 {
                     foreach (var job in jobs)
                     {
-                        if (!RuningJobSet.Contains(job.Name))
+                        Task.Factory.StartNew(() =>
                         {
-                            Task.Factory.StartNew(() =>
+                            lock (job)
                             {
-                                lock(lockObj) { RuningJobSet.Add(job.Name); }
                                 RunJob(job);
-                                RemoveRunJob(job.Name);
-                            });
-                        }
+                            }
+                        });
                     }
                     System.Threading.Thread.Sleep(1);
                 }
@@ -181,13 +177,6 @@ namespace Windows.TaskSchedule.Utility
             }
         }
 
-        private void RemoveRunJob(string jobName)
-        {
-            lock (lockObj)
-            {
-                RuningJobSet.Remove(jobName);
-            }
-        }
         #endregion
 
     }
