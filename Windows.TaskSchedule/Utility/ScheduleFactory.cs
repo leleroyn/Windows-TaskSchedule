@@ -52,7 +52,7 @@ namespace Windows.TaskSchedule.Utility
                             });
                         }
                     }
-                    System.Threading.Thread.Sleep(1);
+                    System.Threading.Thread.Sleep(100);
                 }
             });
             Logger.Debug(string.Format("共找到【{0}】个任务.", jobs.Count));
