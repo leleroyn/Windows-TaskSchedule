@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using Quartz;
 using Windows.TaskSchedule.Extends;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Windows.TaskSchedule.Utility
 {
@@ -51,8 +52,9 @@ namespace Windows.TaskSchedule.Utility
                                 RemoveRunJob(job.Name);
                             });
                         }
+                       Thread.Sleep(100);
                     }
-                    System.Threading.Thread.Sleep(100);
+                   Thread.Sleep(100);
                 }
             });
             Logger.Debug(string.Format("共找到【{0}】个任务.", jobs.Count));
