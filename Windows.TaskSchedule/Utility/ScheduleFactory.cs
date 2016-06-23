@@ -19,52 +19,46 @@ namespace Windows.TaskSchedule.Utility
         public readonly static string ServerName = doc.Element("Jobs").Attribute("serverName").Value;
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
-        static List<JobObject> jobs = new List<JobObject>();
-
-        static ConcurrentBag<string> RuningJobSet = new ConcurrentBag<string>();
         static readonly object lockObj = new object();
+        static List<JobObject> jobs = new List<JobObject>();
         public void Start()
         {
             Logger.Debug("服务开始启动...");
+            jobs = GetJobs();
 
-            try
+            Task myTask = new Task(parms =>
             {
-                jobs = GetJobs();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                throw;
-            }
-
-            Task.Factory.StartNew(() =>
-            {
+                var jobsParm = parms as List<JobObject>;
                 while (true)
                 {
-                    foreach (var job in jobs)
+                    foreach (var job in jobsParm)
                     {
-                        if (!RuningJobSet.Contains(job.Name))
+                        if (!job.Running)
                         {
-                            AddRunJob(job.Name);
-                            Task.Factory.StartNew(() =>
-                            {                                
-                                RunJob(job);
-                                RemoveRunJob(job.Name);
-                            });
+                            job.Running = true;
+                            Task jobTask = new Task(obj =>
+                            {
+                                var jobParm = obj as JobObject;
+                                RunJob(jobParm);
+                                jobParm.Running = false;
+                            }, job);
+                            jobTask.Start();
                         }
-                       Thread.Sleep(100);
+                        Thread.Sleep(100);
                     }
-                   Thread.Sleep(100);
+                    Thread.Sleep(100);
                 }
-            });
+            }, jobs);
+            myTask.Start();
+
             Logger.Debug(string.Format("共找到【{0}】个任务.", jobs.Count));
             Logger.Debug(string.Format("当前服务运行目录:【{0}】.", AppDomain.CurrentDomain.BaseDirectory));
             Logger.Debug("服务启动成功.");
         }
 
+
         public void Stop()
         {
-
             Logger.Debug("服务停止.");
         }
 
@@ -181,19 +175,6 @@ namespace Windows.TaskSchedule.Utility
                     }
                 }
                 catch { }
-            }
-        }
-
-        private void AddRunJob(string jobName)
-        {
-            RuningJobSet.Add(jobName);
-        }
-
-        private void RemoveRunJob(string jobName)
-        {
-            if (!RuningJobSet.TryTake(out jobName))
-            {
-                Logger.Info(string.Format("任务【{0}】移除运动队列时异常.", jobName));
             }
         }
         #endregion

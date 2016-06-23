@@ -1,7 +1,8 @@
-﻿using Windows.TaskSchedule.Extends;
+﻿using System;
+using Windows.TaskSchedule.Extends;
 
 namespace Windows.TaskSchedule.Utility
-{
+{   
     public class JobObject
     {
         public string Name { get; set; }
@@ -32,6 +33,11 @@ namespace Windows.TaskSchedule.Utility
             get;
             set;
         }
+        public bool Running
+        {
+            get;
+            set;
+        }       
     }
 
     /// <summary>
