@@ -20,41 +20,43 @@ namespace Windows.TaskSchedule.Utility
         public readonly static string Description = doc.Element("Jobs").Attribute("description").Value;
         public readonly static string DisplayName = doc.Element("Jobs").Attribute("displayName").Value;
         static readonly object lockObj = new object();
-        static List<JobObject> jobs = new List<JobObject>();
+        static List<JobObject> _jobs = new List<JobObject>();
         public void Start()
         {
             Logger.Debug("服务开始启动...");
-            jobs = GetJobs();
-
-            Task myTask = new Task(parms =>
+            _jobs = GetJobs();
+            new Task(parm =>
             {
-                var jobsParm = parms as List<JobObject>;
-                while (true)
-                {
-                    foreach (var job in jobsParm)
-                    {
-                        if (!job.Running)
-                        {
-                            job.Running = true;
-                            Task jobTask = new Task(obj =>
-                            {
-                                var jobParm = obj as JobObject;
-                                RunJob(jobParm);
-                                jobParm.Running = false;
-                            }, job);
-                            jobTask.Start();
-                        }
-                        Thread.Sleep(20);
-                    }             
-                }
-            }, jobs);
-            myTask.Start();
-
-            Logger.Debug(string.Format("共找到【{0}】个任务.", jobs.Count));
+                var jobs = parm as List<JobObject>;
+                BatchProcess(jobs);
+            }, _jobs).Start();
+            Logger.Debug(string.Format("共找到【{0}】个任务.", _jobs.Count));
             Logger.Debug(string.Format("当前服务运行目录:【{0}】.", AppDomain.CurrentDomain.BaseDirectory));
             Logger.Debug("服务启动成功.");
         }
 
+
+        private void BatchProcess(List<JobObject> jobs)
+        {
+            foreach (var job in jobs)
+            {
+                Task jobTask = new Task(obj =>
+                {
+                    while (true)
+                    {
+                        if (!job.Running)
+                        {
+                            job.Running = true;
+                            var jobParm = obj as JobObject;
+                            RunJob(job);
+                            jobParm.Running = false;
+                        }
+                        System.Threading.Thread.Sleep(100);
+                    }
+                }, job);
+                jobTask.Start();
+            }
+        }
 
         public void Stop()
         {
