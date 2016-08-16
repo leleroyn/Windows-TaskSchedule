@@ -44,9 +44,8 @@ namespace Windows.TaskSchedule.Utility
                             }, job);
                             jobTask.Start();
                         }
-                        Thread.Sleep(100);
-                    }
-                    Thread.Sleep(100);
+                        Thread.Sleep(20);
+                    }             
                 }
             }, jobs);
             myTask.Start();
