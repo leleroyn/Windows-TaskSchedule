@@ -68,7 +68,7 @@ namespace Windows.TaskSchedule.Utility
 
                             job.Running = false;
                         }
-                        System.Threading.Thread.Sleep(100);
+                        System.Threading.Thread.Sleep(800);
                     }
                 });
 
