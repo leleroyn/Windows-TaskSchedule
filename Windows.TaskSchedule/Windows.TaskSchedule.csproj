@@ -58,6 +58,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\CornUtility.cs" />
+    <Compile Include="Utility\Sandbox.cs" />
     <Compile Include="Utility\ScheduleFactory.cs" />
     <Compile Include="Utility\JobObject.cs" />
   </ItemGroup>
