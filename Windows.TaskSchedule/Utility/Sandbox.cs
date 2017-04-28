@@ -18,32 +18,6 @@ namespace Windows.TaskSchedule.Utility
             _domain = AppDomain.CreateDomain(domainName, null, null);
             Sandbox box = _domain.CreateInstanceAndUnwrap(Assembly.GetAssembly(typeof(Sandbox)).FullName, typeof(Sandbox).ToString()) as Sandbox;
             return box;
-
-            //方法二：自定义权限集和配置
-            //domainName = domainName ?? "Sandbox" + new Random().Next(1000);
-
-            //var setup = new AppDomainSetup()
-            //{
-            //    ApplicationBase = AppDomain.CurrentDomain.BaseDirectory,
-            //    ApplicationName = domainName,
-            //    DisallowBindingRedirects = true,
-            //    DisallowCodeDownload = true,
-            //    DisallowPublisherPolicy = true
-            //};
-
-            //var permissions = new PermissionSet(PermissionState.None);
-            //permissions.AddPermission(new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess));
-            //permissions.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
-
-            ////var fullTrustAssembly = typeof(Sandbox).Assembly.Evidence.GetHostEvidence<StrongName>();
-            ////_domain = AppDomain.CreateDomain(domainName, null, setup, permissions, fullTrustAssembly);
-            //_domain = AppDomain.CreateDomain(domainName, null, setup, permissions);
-
-            //Sandbox box =
-            //    (Sandbox)
-            //        Activator.CreateInstanceFrom(_domain, typeof(Sandbox).Assembly.ManifestModule.FullyQualifiedName,
-            //            typeof(Sandbox).FullName).Unwrap();
-            //return box;
         }
 
         public void Execute(string assemblyName, string typeName, string methodName, params object[] parameters)
@@ -75,16 +49,7 @@ namespace Windows.TaskSchedule.Utility
         public override Object InitializeLifetimeService()
         {
             //将对象的租用周期改变为无限
-            return null;
-
-            //ILease lease = (ILease)base.InitializeLifetimeService();
-            //if (lease.CurrentState == LeaseState.Initial)
-            //{
-            //    lease.InitialLeaseTime = TimeSpan.FromMinutes(1);
-            //    lease.SponsorshipTimeout = TimeSpan.FromMinutes(2);
-            //    lease.RenewOnCallTime = TimeSpan.FromSeconds(2);
-            //}
-            //return lease;
+            return null;         
         }
     }
 }
