@@ -124,9 +124,9 @@ namespace Windows.TaskSchedule.Utility
                         job.RunInSandbox = false;
                     }
                 }
-                if (p.Attributes().Any(o => o.Name.ToString() == "ExpireSecond"))
+                if (p.Attributes().Any(o => o.Name.ToString() == "expireSecond"))
                 {
-                    job.ExpireSecond = int.Parse(p.Attribute("ExpireSecond").Value);
+                    job.ExpireSecond = int.Parse(p.Attribute("expireSecond").Value);
                 }
                 else if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
                 {
