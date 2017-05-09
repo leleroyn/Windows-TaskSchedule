@@ -76,7 +76,6 @@ namespace Windows.TaskSchedule.Utility
             }
         }
 
-
         /// <summary>
         /// 解析配置文件
         /// </summary>
@@ -103,24 +102,20 @@ namespace Windows.TaskSchedule.Utility
                     {
                         runInSandbox = p.Attribute("runInSandbox").Value;
                     }
-
                     if (runInSandbox.ToLower() == "true")
                     {
                         Random r = new Random();
                         var name = p.Attribute("name").Value + r.Next(1000);
-
                         //创建sandbox
                         job.Sandbox = Sandbox.Create(name);
                         job.AssemblyName = assembly;
                         job.TypeName = className;
-
                         job.RunInSandbox = true;
                     }
                     else
                     {
                         var targetAssembly = Assembly.Load(assembly);
                         job.Instance = targetAssembly.CreateInstance(className) as IJob;
-
                         job.RunInSandbox = false;
                     }
                 }
@@ -128,7 +123,7 @@ namespace Windows.TaskSchedule.Utility
                 {
                     job.ExpireSecond = int.Parse(p.Attribute("expireSecond").Value);
                 }
-                else if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
+                if (p.Attributes().Any(o => o.Name.ToString() == "exePath"))
                 {
                     job.JobType = JobTypeEnum.Exe;
                     job.ExePath = p.Attribute("exePath").Value.Replace("${basedir}", AppDomain.CurrentDomain.BaseDirectory);
@@ -175,12 +170,11 @@ namespace Windows.TaskSchedule.Utility
                                     job.Instance.Init();
                                     job.Instance.Excute();
                                 }
-
                                 break;
                             case JobTypeEnum.Exe:
                                 using (var process = new Process())
                                 {
-                                    bool hasValue = job.ExpireSecond.HasValue;
+                                    bool hasExpireSetting = job.ExpireSecond.HasValue;
                                     if (string.IsNullOrWhiteSpace(job.Arguments))
                                     {
                                         process.StartInfo = new ProcessStartInfo(job.ExePath);
@@ -190,7 +184,7 @@ namespace Windows.TaskSchedule.Utility
                                         process.StartInfo = new ProcessStartInfo(job.ExePath, job.Arguments);
                                     }
                                     process.Start();
-                                    if (hasValue) //如果设置了最长运行时间，到达时间时，自动中止进程
+                                    if (hasExpireSetting) //如果设置了最长运行时间，到达时间时，自动中止进程
                                     {
                                         bool result = process.WaitForExit(job.ExpireSecond.Value * 1000);
                                         if (!result)
@@ -235,8 +229,6 @@ namespace Windows.TaskSchedule.Utility
                 }
             }
         }
-
         #endregion
-
     }
 }
