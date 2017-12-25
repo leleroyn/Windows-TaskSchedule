@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Quartz;
 using Windows.TaskSchedule.Extends;
+using System.Threading;
 
 namespace Windows.TaskSchedule.Utility
 {
@@ -24,7 +25,7 @@ namespace Windows.TaskSchedule.Utility
         public void Start()
         {
             Logger.Debug("服务开始启动.");
-
+            ThreadPool.SetMinThreads(50, 50);
             _jobs = GetJobs();
             BatchProcess(_jobs);
 
