@@ -17,8 +17,8 @@ Windows下的任务调试框架， 支持Cron表达式，支持任务以插件�
 
 2018-1-8
 
-1.dll反射模式强制使用沙盒模式，增强宿主主程序的稳定性.
-2.dll反射模式必须在参数中指定工作目录：workDir，默认为Bin目录.
-3.dll反射模式默认会加载workDir中与dll同名的后缀为.config的配置文件.
-4.Windows.TaskSchedule.JobFactory.Ijob 接口只保留Excute方法.
+1.dll反射模式强制使用沙盒模式，增强宿主主程序的稳定性。
+2.dll反射模式必须在参数中指定工作目录：workDir，默认为Bin目录。
+3.dll反射模式默认会加载workDir中与dll同名的后缀为.config的配置文件。
+4.Windows.TaskSchedule.JobFactory.Ijob 接口只保留Excute方法。
 5.此版本不再兼容2.0版本。
