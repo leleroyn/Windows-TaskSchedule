@@ -162,8 +162,7 @@ namespace Windows.TaskSchedule.Utility
                         job.Triggering = true;
                         switch (job.JobType)
                         {
-                            case JobTypeEnum.Assembly:
-                                job.Sandbox.Execute(job.AssemblyName, job.TypeName, "Init", null);
+                            case JobTypeEnum.Assembly:                              
                                 job.Sandbox.Execute(job.AssemblyName, job.TypeName, "Excute", null);
                                 break;
                             case JobTypeEnum.Exe:
