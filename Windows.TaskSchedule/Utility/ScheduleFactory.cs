@@ -38,7 +38,7 @@ namespace Windows.TaskSchedule.Utility
         {
             foreach (var job in _jobs)
             {
-                if (job.RunInSandbox && job.Sandbox != null)
+                if (job.Sandbox != null)
                 {
                     job.Sandbox.Dispose();
                 }
@@ -103,22 +103,24 @@ namespace Windows.TaskSchedule.Utility
                     {
                         runInSandbox = p.Attribute("runInSandbox").Value;
                     }
-                    if (runInSandbox.ToLower() == "true")
+
+                    Random r = new Random();
+                    string config = assembly + ".dll.config";
+                    string workDir = "Bin";
+                    if (p.Attributes().Any(o => o.Name.ToString() == "workDir"))
                     {
-                        Random r = new Random();
-                        var name = p.Attribute("name").Value + r.Next(1000);
-                        //创建sandbox
-                        job.Sandbox = Sandbox.Create(name);
-                        job.AssemblyName = assembly;
-                        job.TypeName = className;
-                        job.RunInSandbox = true;
-                    }
-                    else
-                    {
-                        var targetAssembly = Assembly.Load(assembly);
-                        job.Instance = targetAssembly.CreateInstance(className) as IJob;
-                        job.RunInSandbox = false;
-                    }
+                        workDir = p.Attribute("workDir").Value;
+                        if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, workDir, config)))
+                        {
+                            config = null;
+                        }
+                    }                   
+                  
+                    //创建sandbox
+                    job.Sandbox = Sandbox.Create(config, workDir);
+                    job.AssemblyName = assembly;
+                    job.TypeName = className;
+
                 }
                 if (p.Attributes().Any(o => o.Name.ToString() == "expireSecond"))
                 {
@@ -161,16 +163,8 @@ namespace Windows.TaskSchedule.Utility
                         switch (job.JobType)
                         {
                             case JobTypeEnum.Assembly:
-                                if (job.RunInSandbox)
-                                {
-                                    job.Sandbox.Execute(job.AssemblyName, job.TypeName, "Init", null);
-                                    job.Sandbox.Execute(job.AssemblyName, job.TypeName, "Excute", null);
-                                }
-                                else
-                                {
-                                    job.Instance.Init();
-                                    job.Instance.Excute();
-                                }
+                                job.Sandbox.Execute(job.AssemblyName, job.TypeName, "Init", null);
+                                job.Sandbox.Execute(job.AssemblyName, job.TypeName, "Excute", null);
                                 break;
                             case JobTypeEnum.Exe:
                                 using (var process = new Process())
@@ -214,14 +208,7 @@ namespace Windows.TaskSchedule.Utility
                 {
                     if (job.JobType == JobTypeEnum.Assembly)
                     {
-                        if (job.RunInSandbox)
-                        {
-                            job.Sandbox.Execute(job.AssemblyName, job.TypeName, "OnError", ex);
-                        }
-                        else
-                        {
-                            job.Instance.OnError(ex);
-                        }
+                        job.Sandbox.Execute(job.AssemblyName, job.TypeName, "OnError", ex);
                     }
                 }
                 catch

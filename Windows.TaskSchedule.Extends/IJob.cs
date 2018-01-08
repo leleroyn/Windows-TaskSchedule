@@ -7,8 +7,7 @@ namespace Windows.TaskSchedule.Extends
 {
     public interface IJob
     {
-        void Init();
         void Excute();
-        void OnError(Exception ex);        
+       
     }
 }

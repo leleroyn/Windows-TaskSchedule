@@ -5,22 +5,14 @@ using System.Text;
 
 namespace Windows.TaskSchedule.Extends
 {
-    public class DemoJob:DefaultLogger, IJob
-    {      
-        DateTime date = new DateTime();
-        public void Init()
-        {
-            date = DateTime.Now;
-        }
-
+    public class DemoJob : DefaultLogger, IJob
+    {
         public void Excute()
         {
-           Logger.Debug(date);          
+            DateTime date = new DateTime();
+            date = DateTime.Now;
+            Logger.Debug(date);
+            Logger.Debug(System.Configuration.ConfigurationManager.AppSettings["test"]);
         }
-
-        public void OnError(Exception ex)
-        {
-            Logger.Debug(ex.ToString());
-        }       
     }
 }

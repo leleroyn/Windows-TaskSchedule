@@ -51,11 +51,6 @@ namespace Windows.TaskSchedule.Utility
         public bool Running { get; set; }
 
         /// <summary>
-        /// 是否允许沙盒
-        /// </summary>
-        public bool RunInSandbox { get; set; }
-
-        /// <summary>
         /// 程序集名称
         /// </summary>
         public string AssemblyName { get; set; }
